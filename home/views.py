@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from report_lost.models import Item_Lost
 from report_found.models import Item_Found
 from notifications.models import Notification
-#login page for project lost and found
+#login
 @login_required
 def home(request):
 
