@@ -1,0 +1,209 @@
+{% extends 'Landing_page/base.html' %}
+{% block t_css %}
+{% load static %}
+<title>Dashboard - KhooyaPaayaa</title>
+<link rel="stylesheet" href="{% static 'home/home.css' %}">
+{% endblock %}
+{% block content %}
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-container">
+        <a class="logo" href="{% url 'Home' %}" >🔍 KhooyaPaayaa</a>
+        <div class="nav-menu">
+            <a href="{% url 'Home' %}" class="nav-link">Home</a>
+            <a href="{% url 'MyItems' %}" class="nav-link">My Items</a>
+            <a href="{% url 'notifications' %}" class="nav-link notification-wrapper">
+                <span class="nav-text">Notifications</span>
+
+                {% if unread_count > 0 %}
+                <span class="alert-badge">{{ unread_count }}</span>
+                {% endif %}
+            </a>
+
+                
+            </a>
+            <div class="user-profile" onclick="handleProfileClick()">
+                <div class="user-avatar">
+                    
+                    {% if request.user.profile_making.profile_image %}
+                        <img src="{{ request.user.profile_making.profile_image.url }}" class="user-avatar">
+                    {% else %}
+                        {{ request.user.profile_making.first_name|first }}{{ request.user.profile_making.last_name|first }}
+                    {% endif %}
+                </div>
+                <span>{{ request.user.profile_making.first_name }} {{ request.user.profile_making.last_name }}</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- ACTION CARDS -->
+    <div class="action-section">
+        <a href="{% url 'ReportLost' %}" class="action-card lost">
+            <div class="action-icon">😢</div>
+            <h3>Report Lost Item</h3>
+            <p>Lost something? Report it here.</p>
+            <button class="action-btn btn-lost">Report Lost</button>
+        </a>
+
+        <a href="{% url 'ReportFound' %}" class="action-card found">
+            <div class="action-icon">✨</div>
+            <h3>Report Found Item</h3>
+            <p>Found something? Help return it.</p>
+            <button class="action-btn btn-found">Report Found</button>
+        </a>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-section">
+        <div class="filter-header">
+            <h2>Browse Items</h2>
+
+            <div class="filter-tabs">
+                <button class="tab-btn active" onclick="setFilter('all')">All</button>
+                <button class="tab-btn" onclick="setFilter('lost')">Lost</button>
+                <button class="tab-btn" onclick="setFilter('found')">Found</button>
+            </div>
+        </div>
+
+        <div class="filter-controls">
+            <input type="text" class="filter-input" placeholder="Search..." oninput="setSearch(this.value)">
+            
+            <select class="filter-select" onchange="setCategory(this.value)">
+                <option value="">All Categories</option>
+                <option value="electronics">Electronics</option>
+                <option value="documents">Documents</option>
+                <option value="accessories">Accessories</option>
+                <option value="bags">Bags</option>
+                <option value="books">Books</option>
+                <option value="other">Other</option>
+            </select>
+
+            <select class="filter-select" onchange="setLocation(this.value)">
+                <option value="">All Locations</option>
+                <option value="library">Library</option>
+                <option value="cafeteria">Cafeteria</option>
+                <option value="classroom">Classroom</option>
+                <option value="hostel">Hostel</option>
+                <option value="parking">Parking</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ITEMS GRID -->
+    <div class="items-section">
+        <div class="items-grid" id="items-grid">
+
+            {% if items %}
+                {% for item in items %}
+                    <div class="item-card"
+                        data-status="{{ item.status|lower }}"
+                        data-category="{{ item.category|lower }}"
+                        data-location="{{ item.location|lower }}"
+                        data-text="{{ item.item_name|lower }} {{ item.description|lower }} {{ item.location|lower }}">
+
+                        <div class="item-image">
+                            {% if item.photo %}
+                                <img src="{{ item.photo.url }}" class="item-photo">
+                            {% else %}
+                                <div class="no-photo">📦</div>
+                            {% endif %}
+
+                            <span class="item-status status-{{ item.status }}">
+                                {{ item.status|upper }}
+                            </span>
+                        </div>
+
+                        <div class="item-content">
+                            <h3 class="item-title">{{ item.item_name }}</h3>
+                            <p class="item-description">{{ item.description }}</p>
+
+                            <div class="item-meta">
+                                <span>📍 {{ item.location }}</span>
+                                <span>📅 {{ item.date_lost }}</span>
+                            </div>
+
+                            <button class="item-contact-btn">
+                                {% if item.status == "lost" %}
+                                    <a class="contact-finder" href="{% url 'ContactLooser' item.id %}" >I Found This!</a>
+                                {% else %}
+                                    <a class="contact-finder" href="{% url 'ContactFinder' item.id %}">Contact Finder</a>
+                                {% endif %}
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <h3>No items found</h3>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<!-- FILTER + SEARCH JAVASCRIPT -->
+<script>
+
+    let filterType = "all";
+    let filterCategory = "";
+    let filterLocation = "";
+    let filterSearch = "";
+
+    // Lost/Found tab
+    function setFilter(type) {
+        filterType = type;
+
+        document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+        event.target.classList.add("active");
+
+        applyFilters();
+    }
+
+    // Category dropdown
+    function setCategory(cat) {
+        filterCategory = cat.toLowerCase();
+        applyFilters();
+    }
+
+    // Location dropdown
+    function setLocation(loc) {
+        filterLocation = loc.toLowerCase();
+        applyFilters();
+    }
+
+    // Search input
+    function setSearch(q) {
+        filterSearch = q.toLowerCase();
+        applyFilters();
+    }
+
+    function applyFilters() {
+        document.querySelectorAll(".item-card").forEach(card => {
+
+            const status = card.dataset.status;
+            const category = card.dataset.category;
+            const location = card.dataset.location;
+            const text = card.dataset.text;
+
+            let visible = true;
+
+            if (filterType !== "all" && filterType !== status) visible = false;
+            if (filterCategory && filterCategory !== category) visible = false;
+            if (filterLocation && !location.includes(filterLocation)) visible = false;
+            if (filterSearch && !text.includes(filterSearch)) visible = false;
+
+            card.style.display = visible ? "block" : "none";
+        });
+    }
+
+    function handleProfileClick() {
+        window.location.href = "{% url 'ProfileInfo' %}";
+    }
+</script>
+
+{% endblock %}

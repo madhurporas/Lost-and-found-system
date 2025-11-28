@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="{% static 'Landing_page/base.css'%}"> -->
+    {% block t_css %}{% endblock %}
+</head>
+<body>
+<!-- {% block navbar %}
+        <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🔍 KhooyaPaayaa</div>
+            <div class="nav-menu">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link">My Items</a>
+                <a href="{% url 'notifications' %}" class="nav-link">Notifications</a>
+                <div class="user-profile" onclick="handleProfileClick()">
+                    <div class="user-avatar">
+                        {% if request.user.profile_making.profile_image %}
+                            <img src="{{ request.user.profile_making.profile_image.url }}" class="user-avatar" alt="Profile Photo">
+                        {% else %}
+                            {{ request.user.profile_making.first_name|first }}{{ request.user.profile_making.last_name|first }}
+                        {% endif %}
+                    </div>
+                    <span>{{ request.user.profile_making.first_name }} {{ request.user.profile_making.last_name }}</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+{% endblock navbar %} -->
+{% block content %}{% endblock %}
+<!-- {% block footer %}
+        <footer class="kp-footer">
+            <div class="kp-container">
+                <div class="kp-footer-left">
+                    <h3>KhooyaPaayaa</h3>
+                    <p>Helping people find what’s lost.</p>
+                </div>
+
+                <div class="kp-footer-links">
+                    <a href="/">Home</a>
+                    <a href="#">Contact</a>
+                    <a href="#">Browse Items</a>
+                    <a href="#">About</a>
+                </div>
+
+                <div class="kp-footer-right">
+                    <p>© 2025 KhooyaPaayaa. All Rights Reserved.</p>
+                </div>
+            </div>
+        </footer>
+{% endblock footer %} -->
+</body>
+</html>

@@ -1,0 +1,163 @@
+{% extends 'Landing_page/base.html' %}
+{% block t_css %}
+{% load static %}
+    <title>Contact Owner - KhooyaPaayaa</title>
+    <link rel="stylesheet" href="{% static 'contact_looser/contact_looser.css' %}">
+{% endblock %}
+{% block content %}
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-container">
+        <a class="logo" href="{% url 'Home' %}">🔍 KhooyaPaayaa</a>
+        <div class="nav-menu">
+            <a class="nav-link" href="{% url 'Home' %}">Home</a>
+            <a class="nav-link" href="{% url 'MyItems' %}">My Items</a>
+            <a class="nav-link" href="{% url 'notifications' %}">Notifications</a>
+            <a class="nav-link" href="{% url 'ProfileInfo' %}">Profile</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- BACK BUTTON -->
+    <a href="javascript:history.back()" class="back-button">← Back to Items</a>
+
+    <!-- ITEM CARD -->
+    <div class="item-card">
+        <div class="item-header">
+
+            <!-- ITEM PHOTO -->
+            <div class="item-image">
+                {% if lost.photo %}
+                    <img src="{{ lost.photo.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:15px;">
+                {% else %}
+                    📦
+                {% endif %}
+            </div>
+
+            <div>
+                <span class="status-badge badge-lost">LOST</span>
+
+                <h1 class="item-title">{{ lost.item_name }}</h1>
+                <div class="item-category">{{ lost.category }}</div>
+
+                <div class="item-meta">
+                    <div class="meta-item">📍 {{ lost.location }}</div>
+                    <div class="meta-item">📅 Lost on {{ lost.date_lost }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="section-title">📝 Description</h3>
+            <div class="description-text">{{ lost.description }}</div>
+        </div>
+
+        <div class="item-details-grid">
+            {% if lost.color %}<div class="detail-item"><b>Color:</b> {{ lost.color }}</div>{% endif %}
+            {% if lost.brand %}<div class="detail-item"><b>Brand/Model:</b> {{ lost.brand }}</div>{% endif %}
+            {% if lost.condition %}<div class="detail-item"><b>Condition:</b> {{ lost.condition }}</div>{% endif %}
+            <div class="detail-item"><b>Last Seen:</b> {{ lost.location }}</div>
+        </div>
+    </div>
+
+    <!-- OWNER INFO -->
+    <div class="finder-card">
+
+        <h2 class="section-title">👤 Owner Information</h2>
+
+        <div class="finder-profile">
+
+            <!-- OWNER IMAGE / INITIAL -->
+            <div class="finder-avatar">
+                {% if lost.user.profile_making.profile_image %}
+                    <img src="{{ lost.user.profile_making.profile_image.url }}"
+                         style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                {% else %}
+                    {{ lost.user.profile_making.first_name|first }}{{ lost.user.profile_making.last_name|first }}
+                {% endif %}
+            </div>
+
+            <div>
+                <div class="finder-name">
+                    {{ lost.user.profile_making.first_name }} {{ lost.user.profile_making.last_name }}
+                </div>
+
+                <div>
+                    {{ lost.user.profile_making.department }}
+                </div>
+            </div>
+        </div>
+
+        <h3 class="section-title">📞 Contact Methods</h3>
+
+        <div class="contact-methods">
+
+            <!-- PHONE -->
+            {% if lost.user.profile_making.phone_number %}
+            <div class="contact-method">
+                <div class="method-info">
+                    <div class="method-icon">📱</div>
+                    <div>
+                        <div class="method-label">Phone Number</div>
+                        <div class="method-value">{{ lost.user.profile_making.phone_number }}</div>
+                    </div>
+                </div>
+                <a href="tel:{{ lost.user.profile_making.phone_number }}" class="contact-btn">Call</a>
+            </div>
+            {% endif %}
+
+            <!-- EMAIL -->
+            <div class="contact-method">
+                <div class="method-info">
+                    <div class="method-icon">📧</div>
+                    <div>
+                        <div class="method-label">Email</div>
+                        <div class="method-value">{{ lost.user.email }}</div>
+                    </div>
+                </div>
+                <a href="mailto:{{ lost.user.email }}?subject=Regarding Your Lost Item - {{ lost.item_name }}" class="contact-btn">
+                    Email
+                </a>
+            </div>
+
+            <!-- MESSAGE -->
+            <div class="contact-method">
+                <div class="method-info">
+                    <div class="method-icon">💬</div>
+                    <div>
+                        <div class="method-label">In-App Message</div>
+                        <div class="method-value">Send secure message</div>
+                    </div>
+                </div>
+
+                <a href="#message-section" class="contact-btn">Message</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MESSAGE BOX -->
+    <div class="message-box" id="message-section">
+        <h2 class="section-title">✉️ Send a Message</h2>
+
+        
+
+        <form method="POST">
+            {% csrf_token %}
+            <textarea id="message" name="finder_message" placeholder="Hi, I think I found your lost item..."></textarea>
+            <button class="send-btn" type="submit">Notify Owner</button>
+        </form>
+
+        <div class="warning-box">
+            <div class="warning-title">🔒 Privacy Note</div>
+            Your message will trigger a notification to the owner.
+            Your contact information will be shared with the finder.
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Messages - KhooyaPaayaa</title>
+<style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background:#f5f7fa;min-height:100vh;
+    }
+
+    /* global link reset */
+    a{color:inherit;text-decoration:none}
+
+    /* Navbar */
+    .navbar{
+        background:linear-gradient(135deg,#667eea,#764ba2);
+        color:#fff;padding:15px 0;box-shadow:0 2px 10px rgba(0,0,0,.1);
+        position:sticky;top:0;z-index:1000;
+    }
+    .nav-container{
+        max-width:1400px;margin:0 auto;padding:0 20px;
+        display:flex;justify-content:space-between;align-items:center;
+    }
+    .logo{font-size:24px;font-weight:700;display:flex;gap:8px;align-items:center}
+    .nav-menu{display:flex;gap:30px;align-items:center}
+    .nav-link{color:#fff;font-weight:500}
+
+    /* Messages container */
+    .messages-container{
+        max-width:1400px;margin:20px auto;height:calc(100vh - 110px);
+        display:flex;background:white;box-shadow:0 4px 15px rgba(0,0,0,.08);border-radius:8px;overflow:hidden;
+    }
+
+    /* Sidebar */
+    .conversations-sidebar{
+        width:350px;border-right:1px solid #e0e0e0;display:flex;flex-direction:column;background:#fff;
+    }
+    .sidebar-header{padding:20px;border-bottom:1px solid #e0e0e0}
+    .sidebar-title{font-size:22px;font-weight:700;color:#333;margin-bottom:12px}
+    .search-box{position:relative}
+    .search-input{
+        width:100%;padding:10px 15px 10px 40px;border:2px solid #e0e0e0;border-radius:25px;font-size:14px;outline:none;
+    }
+    .search-input:focus{border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,.08)}
+    .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#999}
+
+    .conversations-list{flex:1;overflow:auto;background:#fff}
+    .conversation-item{
+        display:flex;gap:12px;padding:15px 18px;border-bottom:1px solid #f0f0f0;cursor:pointer;align-items:center;
+    }
+    .conversation-item:hover{background:#f8f9fa}
+    .conversation-item.active{background:#e8f0fe;border-left:4px solid #667eea}
+    .conversation-item.unread{background:#f0f4ff}
+
+    .conversation-avatar{
+        width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);
+        display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;flex-shrink:0;position:relative;
+    }
+    .online-indicator{width:12px;height:12px;background:#27ae60;border:2px solid #fff;border-radius:50%;position:absolute;bottom:2px;right:2px}
+
+    .conversation-info{flex:1;min-width:0}
+    .conversation-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .conversation-name{font-weight:600;color:#333;font-size:15px}
+    .conversation-time{font-size:12px;color:#999}
+    .conversation-preview{color:#666;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .conversation-item.unread .conversation-preview{font-weight:600;color:#333}
+    .unread-badge{background:#667eea;color:#fff;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:600;margin-left:8px}
+
+    /* Chat area */
+    .chat-area{flex:1;display:flex;flex-direction:column;background:#fafbfc}
+    .chat-header{padding:20px 22px;background:#fff;border-bottom:1px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center}
+    .chat-user-info{display:flex;align-items:center;gap:15px}
+    .chat-avatar{width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px}
+    .chat-user-name{font-weight:600;color:#333;font-size:16px}
+    .chat-user-status{font-size:13px;color:#27ae60}
+
+    .chat-actions{display:flex;gap:10px;position:relative}
+    .action-icon-btn{width:40px;height:40px;border-radius:50%;border:none;background:#f8f9fa;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px}
+    .action-icon-btn:hover{background:#e9ecef}
+
+    /* options dropdown */
+    .options-menu{
+        position:absolute;right:0;top:50px;background:#fff;border:1px solid #e6e6e6;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.08);
+        min-width:180px;display:none;z-index:60;overflow:hidden;
+    }
+    .options-menu.show{display:block}
+    .options-menu button{width:100%;padding:10px 14px;text-align:left;border:none;background:transparent;cursor:pointer;font-size:14px}
+    .options-menu button:hover{background:#f5f5f5}
+
+    /* item context */
+    .item-context{padding:15px 22px;background:#e8f5e9;border-bottom:1px solid #c8e6c9;display:flex;align-items:center;gap:15px}
+    .item-context-icon{width:50px;height:50px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+    .item-context-title{font-weight:600;color:#333}
+    .item-context-meta{font-size:13px;color:#666}
+    .view-item-btn{padding:8px 18px;background:#fff;border:2px solid #27ae60;border-radius:20px;color:#27ae60;font-weight:600;cursor:pointer}
+    .view-item-btn:hover{background:#27ae60;color:#fff}
+
+    /* messages area */
+    .messages-area{flex:1;overflow:auto;padding:25px;display:flex;flex-direction:column;gap:15px}
+    .date-divider{text-align:center;margin:15px 0}
+    .date-divider-text{background:#fff;padding:5px 15px;border-radius:15px;font-size:12px;color:#999;display:inline-block;box-shadow:0 2px 5px rgba(0,0,0,.05)}
+
+    .message{display:flex;gap:10px;max-width:70%;animation:messageSlide .3s ease-out}
+    .message.sent{align-self:flex-end;flex-direction:row-reverse}
+    @keyframes messageSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .message-avatar{width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
+    .message.sent .message-avatar{background:linear-gradient(135deg,#27ae60,#229954)}
+    .message-content{flex:1}
+    .message-bubble{background:#fff;padding:12px 16px;border-radius:18px;box-shadow:0 2px 5px rgba(0,0,0,.05);word-wrap:break-word}
+    .message.sent .message-bubble{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+    .message-text{font-size:15px;line-height:1.5}
+    .message-time{font-size:11px;color:#999;margin-top:5px;display:flex;align-items:center;gap:6px}
+    .message.sent .message-time{color:rgba(255,255,255,.8);justify-content:flex-end}
+    .read-indicator{color:#27ae60;font-size:14px}
+
+    /* input area */
+    .message-input-area{padding:16px 22px;background:#fff;border-top:1px solid #e0e0e0}
+    .input-wrapper{display:flex;gap:12px;align-items:flex-end}
+    .attachment-btn{width:42px;height:42px;border-radius:50%;border:none;background:#f8f9fa;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px}
+    .attachment-btn:hover{background:#e9ecef}
+    .input-container{flex:1;background:#f8f9fa;border-radius:25px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+    .message-input{flex:1;border:none;background:transparent;font-size:15px;outline:none;resize:none;max-height:100px;overflow:auto}
+    .send-btn{width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px}
+    .send-btn:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(102,126,234,.4)}
+    .send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+    /* empty state */
+    .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#999;padding:40px}
+    .empty-icon{font-size:80px;margin-bottom:20px}
+    .empty-title{font-size:22px;color:#666;margin-bottom:10px}
+    .empty-text{font-size:16px;text-align:center;line-height:1.6}
+
+    /* scrollbars */
+    .conversations-list::-webkit-scrollbar,.messages-area::-webkit-scrollbar{width:6px}
+    .conversations-list::-webkit-scrollbar-thumb,.messages-area::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+    .conversations-list::-webkit-scrollbar-thumb:hover,.messages-area::-webkit-scrollbar-thumb:hover{background:#999}
+
+    @media (max-width:768px){
+        .messages-container{flex-direction:column;height:auto}
+        .conversations-sidebar{width:100%;max-height:40vh;border-right:none;border-bottom:1px solid #e0e0e0}
+        .chat-area{display:none}
+        .chat-area.active{display:flex}
+        .message{max-width:85%}
+    }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a class="logo" href="/">🔍 KhooyaPaayaa</a>
+        <div class="nav-menu">
+            <a class="nav-link" href="/">Home</a>
+            <a class="nav-link" href="/MyItems">My Items</a>
+            <a class="nav-link" href="#">Notifications</a>
+            <a class="nav-link" href="#">Profile</a>
+        </div>
+    </div>
+</nav>
+
+<div class="messages-container" role="application" aria-label="Messages">
+    <!-- Conversations Sidebar -->
+    <aside class="conversations-sidebar" aria-label="Conversations">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Messages</div>
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input id="search-input" class="search-input" type="text" placeholder="Search conversations..." aria-label="Search conversations">
+            </div>
+        </div>
+
+        <div id="conversations-list" class="conversations-list" role="list">
+            <!-- Conversation items (static sample data) -->
+            <div class="conversation-item active unread" data-id="1" role="listitem" tabindex="0">
+                <div class="conversation-avatar">SJ<div class="online-indicator"></div></div>
+                <div class="conversation-info">
+                    <div class="conversation-header">
+                        <span class="conversation-name">Sarah Johnson</span>
+                        <span class="conversation-time">2m ago</span>
+                    </div>
+                    <div class="conversation-preview">Yes, I still have it! When can you... <span class="unread-badge">2</span></div>
+                </div>
+            </div>
+
+            <div class="conversation-item" data-id="2" role="listitem" tabindex="0">
+                <div class="conversation-avatar">MK</div>
+                <div class="conversation-info">
+                    <div class="conversation-header">
+                        <span class="conversation-name">Mike Kumar</span>
+                        <span class="conversation-time">1h ago</span>
+                    </div>
+                    <div class="conversation-preview">Thank you so much for finding my...</div>
+                </div>
+            </div>
+
+            <div class="conversation-item unread" data-id="3" role="listitem" tabindex="0">
+                <div class="conversation-avatar">AR<div class="online-indicator"></div></div>
+                <div class="conversation-info">
+                    <div class="conversation-header">
+                        <span class="conversation-name">Amit Raj</span>
+                        <span class="conversation-time">3h ago</span>
+                    </div>
+                    <div class="conversation-preview">Can you describe what's inside? <span class="unread-badge">1</span></div>
+                </div>
+            </div>
+
+            <div class="conversation-item" data-id="4" role="listitem" tabindex="0">
+                <div class="conversation-avatar">PG</div>
+                <div class="conversation-info">
+                    <div class="conversation-header">
+                        <span class="conversation-name">Priya Gupta</span>
+                        <span class="conversation-time">Yesterday</span>
+                    </div>
+                    <div class="conversation-preview">I'll be at the library around 3 PM</div>
+                </div>
+            </div>
+
+            <div class="conversation-item" data-id="5" role="listitem" tabindex="0">
+                <div class="conversation-avatar">RV</div>
+                <div class="conversation-info">
+                    <div class="conversation-header">
+                        <span class="conversation-name">Rahul Verma</span>
+                        <span class="conversation-time">2 days ago</span>
+                    </div>
+                    <div class="conversation-preview">Thanks for reaching out!</div>
+                </div>
+            </div>
+
+            <div class="conversation-item" data-id="6" role="listitem" tabindex="0">
+                <div class="conversation-avatar">AS</div>
+                <div class="conversation-info">
+                    <div class="conversation-header">
+                        <span class="conversation-name">Ananya Sharma</span>
+                        <span class="conversation-time">Nov 10</span>
+                    </div>
+                    <div class="conversation-preview">That's exactly my phone! 📱</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Chat Area -->
+    <section id="chat-area" class="chat-area" aria-live="polite">
+        <div class="chat-header">
+            <div class="chat-user-info">
+                <div id="chat-avatar" class="chat-avatar">SJ</div>
+                <div>
+                    <div id="chat-user-name" class="chat-user-name">Sarah Johnson</div>
+                    <div id="chat-user-status" class="chat-user-status">● Online</div>
+                </div>
+            </div>
+
+            <div class="chat-actions">
+                <button id="view-profile-btn" class="action-icon-btn" title="View Profile">👤</button>
+
+                <div style="position:relative">
+                    <button id="options-btn" class="action-icon-btn" title="More Options">⋮</button>
+                    <div id="options-menu" class="options-menu" role="menu" aria-hidden="true">
+                        <button data-action="block">Block user</button>
+                        <button data-action="report">Report conversation</button>
+                        <button data-action="delete">Delete conversation</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="item-context">
+            <div class="item-context-icon">👛</div>
+            <div class="item-context-info">
+                <div class="item-context-title">Regarding: Black Leather Wallet</div>
+                <div class="item-context-meta">Found at Library • Nov 10, 2024</div>
+            </div>
+            <a id="view-item-link" class="view-item-btn" href="/MyItems">View Item</a>
+        </div>
+
+        <div id="messages-area" class="messages-area" aria-live="polite">
+            <div class="date-divider"><span class="date-divider-text">Today</span></div>
+
+            <div class="message">
+                <div class="message-avatar">SJ</div>
+                <div class="message-content">
+                    <div class="message-bubble"><div class="message-text">Hi! I found a black wallet at the library. Is this yours?</div></div>
+                    <div class="message-time">10:30 AM</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <div class="message-avatar">ME</div>
+                <div class="message-content">
+                    <div class="message-bubble"><div class="message-text">Yes! That's my wallet. Thank you so much for finding it! 🙏</div></div>
+                    <div class="message-time">10:32 AM <span class="read-indicator">✓✓</span></div>
+                </div>
+            </div>
+
+            <div class="message">
+                <div class="message-avatar">SJ</div>
+                <div class="message-content">
+                    <div class="message-bubble"><div class="message-text">Great! Can you describe what's inside to verify it's yours?</div></div>
+                    <div class="message-time">10:33 AM</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <div class="message-avatar">ME</div>
+                <div class="message-content">
+                    <div class="message-bubble"><div class="message-text">It has my student ID card, library card, and some cash. There's also a photo of my family in the coin pocket.</div></div>
+                    <div class="message-time">10:35 AM <span class="read-indicator">✓✓</span></div>
+                </div>
+            </div>
+
+            <div class="message">
+                <div class="message-avatar">SJ</div>
+                <div class="message-content">
+                    <div class="message-bubble"><div class="message-text">Perfect! That matches. When would you like to collect it?</div></div>
+                    <div class="message-time">10:36 AM</div>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <div class="message-avatar">ME</div>
+                <div class="message-content">
+                    <div class="message-bubble"><div class="message-text">I can come to the library today around 2 PM. Would that work for you?</div></div>
+                    <div class="message-time">10:38 AM <span class="read-indicator">✓✓</span></div>
+                </div>
+            </div>
+
+            <div class="message">
+                <div class="message-avatar">SJ</div>
+                <div class="message-content">
+                    <div class="message-bubble"><div class="message-text">Yes, I still have it! When can you come pick it up?</div></div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-input-area">
+            <div class="input-wrapper">
+                <button id="attach-btn" class="attachment-btn" title="Attach file">📎</button>
+                <div class="input-container">
+                    <textarea id="message-input" class="message-input" placeholder="Type a message..." rows="1" aria-label="Type a message"></textarea>
+                </div>
+                <button id="send-btn" class="send-btn" title="Send message">➤</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+/* Minimal, clean JS: no inline onclicks. */
+/* Elements */
+const convList = document.getElementById('conversations-list');
+const searchInput = document.getElementById('search-input');
+const chatArea = document.getElementById('chat-area');
+const messagesArea = document.getElementById('messages-area');
+const messageInput = document.getElementById('message-input');
+const sendBtn = document.getElementById('send-btn');
+const attachBtn = document.getElementById('attach-btn');
+const viewProfileBtn = document.getElementById('view-profile-btn');
+const optionsBtn = document.getElementById('options-btn');
+const optionsMenu = document.getElementById('options-menu');
+const viewItemLink = document.getElementById('view-item-link');
+
+/* Utility: scroll messages to bottom */
+function scrollToBottom(){
+    if (!messagesArea) return;
+    messagesArea.scrollTop = messagesArea.scrollHeight;
+}
+
+/* Initialize scroll */
+scrollToBottom();
+
+/* Open conversation handler (event delegation) */
+convList.addEventListener('click', (e) => {
+    const item = e.target.closest('.conversation-item');
+    if (!item) return;
+    openConversation(item);
+});
+
+/* also open on keyboard "Enter" when focused */
+convList.addEventListener('keydown', (e) => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('.conversation-item')) {
+        e.preventDefault();
+        openConversation(e.target.closest('.conversation-item'));
+    }
+});
+
+function openConversation(itemElement) {
+    // clear active
+    convList.querySelectorAll('.conversation-item').forEach(ci => ci.classList.remove('active'));
+    // set active on clicked
+    itemElement.classList.add('active');
+    // remove unread state & badge
+    itemElement.classList.remove('unread');
+    const badge = itemElement.querySelector('.unread-badge');
+    if (badge) badge.remove();
+    // show chat area on small screens
+    chatArea.classList.add('active');
+    // In real app: fetch messages for this conversation id
+    const id = itemElement.getAttribute('data-id');
+    console.log('Opening conversation:', id);
+}
+
+/* Search conversations */
+searchInput.addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    convList.querySelectorAll('.conversation-item').forEach(conv => {
+        const name = conv.querySelector('.conversation-name')?.textContent?.toLowerCase() || '';
+        const preview = conv.querySelector('.conversation-preview')?.textContent?.toLowerCase() || '';
+        conv.style.display = (name.includes(q) || preview.includes(q) || q === '') ? 'flex' : 'none';
+    });
+});
+
+/* Send message */
+function createMessageElement(text, sent = true) {
+    const wrapper = document.createElement('div');
+    wrapper.className = sent ? 'message sent' : 'message';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = sent ? 'ME' : 'SJ';
+    if (sent) avatar.style.background = ''; // css handles sent style
+
+    const content = document.createElement('div');
+    content.className = 'message-content';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+
+    const msgText = document.createElement('div');
+    msgText.className = 'message-text';
+    msgText.textContent = text;
+
+    bubble.appendChild(msgText);
+    content.appendChild(bubble);
+
+    const time = document.createElement('div');
+    time.className = 'message-time';
+    const now = new Date();
+    time.textContent = now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+
+    if (sent) {
+        const read = document.createElement('span');
+        read.className = 'read-indicator';
+        read.textContent = '✓';
+        time.appendChild(document.createTextNode(' '));
+        time.appendChild(read);
+    }
+
+    content.appendChild(time);
+    wrapper.appendChild(avatar);
+    wrapper.appendChild(content);
+    return wrapper;
+}
+
+function sendMessage(){
+    const text = messageInput.value.trim();
+    if (!text) return;
+    const el = createMessageElement(text, true);
+    messagesArea.appendChild(el);
+    messageInput.value = '';
+    messageInput.style.height = 'auto';
+    scrollToBottom();
+
+    // simulate read receipt
+    setTimeout(() => {
+        const indicator = el.querySelector('.read-indicator');
+        if (indicator) indicator.textContent = '✓✓';
+    }, 2000);
+
+    // In real app: send to backend
+    console.log('Sending message:', text);
+}
+
+sendBtn.addEventListener('click', sendMessage);
+
+/* handle Enter to send (Shift+Enter for newline) */
+messageInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+/* auto-resize input */
+messageInput.addEventListener('input', function(){
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
+
+/* attach file (minimal) */
+attachBtn.addEventListener('click', () => {
+    alert('File attachment feature coming soon!');
+});
+
+/* view profile (minimal) */
+viewProfileBtn.addEventListener('click', () => {
+    alert("Opening Sarah Johnson\\'s profile...");
+});
+
+/* options dropdown (small menu) */
+optionsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    optionsMenu.classList.toggle('show');
+    optionsMenu.setAttribute('aria-hidden', optionsMenu.classList.contains('show') ? 'false' : 'true');
+});
+/* handle menu actions */
+optionsMenu.addEventListener('click', (e) => {
+    const action = e.target.getAttribute('data-action');
+    if (!action) return;
+    optionsMenu.classList.remove('show');
+    if (action === 'block') {
+        if (confirm('Block this user? You will no longer receive messages from them.')) {
+            alert('User blocked.');
+        }
+    } else if (action === 'report') {
+        alert('Conversation reported. Our team will review it.');
+    } else if (action === 'delete') {
+        if (confirm('Delete this conversation? This cannot be undone.')) {
+            // find active conversation and remove it (simple behavior)
+            const active = convList.querySelector('.conversation-item.active');
+            if (active) active.remove();
+            alert('Conversation deleted.');
+        }
+    }
+});
+
+/* close menu on outside click */
+document.addEventListener('click', (e) => {
+    if (!optionsMenu.contains(e.target) && !optionsBtn.contains(e.target)) {
+        optionsMenu.classList.remove('show');
+        optionsMenu.setAttribute('aria-hidden', 'true');
+    }
+});
+
+/* keyboard: close menu on escape */
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        optionsMenu.classList.remove('show');
+    }
+});
+
+/* responsive: clicking a conversation on small screens will show chat area (handled by openConversation) */
+/* initial accessibility focus for conversations list */
+const firstConv = convList.querySelector('.conversation-item');
+if (firstConv) firstConv.setAttribute('tabindex','0');
+</script>
+</body>
+</html>

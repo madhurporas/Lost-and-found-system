@@ -1,0 +1,162 @@
+{% extends 'Landing_page/base.html' %}
+{% block t_css %}
+{% load static %}
+    <title>Contact Finder - KhooyaPaayaa</title>
+    <link rel="stylesheet" href="{% static 'contact_finder/contact_finder.css' %}">
+{% endblock %}
+{% block content %}
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a class="logo" href="{% url 'Home' %}">🔍 KhooyaPaayaa</a>
+
+            <div class="nav-menu">
+                <a class="nav-link" href="{% url 'Home' %}">Home</a>
+                <a class="nav-link" href="{% url 'MyItems' %}">My Items</a>
+                <a class="nav-link" href="{% url 'notifications' %}">Notifications</a>
+                <a class="nav-link" href="{% url 'ProfileInfo' %}">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- BACK BUTTON -->
+        <a href="javascript:history.back()" class="back-button">← Back to Search Results</a>
+
+        <!-- ITEM CARD -->
+        <div class="item-card">
+            <div class="item-header">
+                <div class="item-image">
+                    {% if found.photo %}
+                        <img src="{{ found.photo.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:15px;">
+                    {% else %}
+                        📱
+                    {% endif %}
+                </div>
+                <div>
+                    <span class="status-badge badge-found">FOUND</span>
+                    <h1 class="item-title">{{ found.item_name }}</h1>
+                    <div class="item-category">{{ found.category }}</div>
+
+                    <div class="item-meta">
+                        <div class="meta-item">📍{{ found.location }}</div>
+                        <div class="meta-item">Found on {{ found.date_found }}</div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="section-title">📝 Description</h3>
+                <div class="description-text">
+                    {{ found.description }}
+                </div>
+            </div>
+
+            <div class="item-details-grid">
+                {% if found.color %}<div class="detail-item"><b>Color:</b> {{ found.color }}</div>{% endif %}
+                {% if found.brand %}<div class="detail-item"><b>Brand/Model:</b> {{ found.brand }}</div>{% endif %}
+                {% if found.condition %}<div class="detail-item"><b>Condition:</b> {{ found.condition }}</div>{% endif %}
+                <div class="detail-item"><b>Location:</b>{{ found.location }} With Finder</div>
+            </div>
+        </div>
+
+        <!-- FINDER INFO -->
+        <div class="finder-card">
+
+            <h2 class="section-title">👤 Finder Information</h2>
+
+            <div class="finder-profile">
+                <div class="finder-avatar">
+                    {% if found.user.profile_making.profile_image %}
+                        <img src="{{ found.user.profile_making.profile_image.url }}"
+                            style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                    {% else %}
+                        {{ found.user.profile_making.first_name|first }}{{ found.user.profile_making.last_name|first }}
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="finder-name">
+                        {{ found.user.profile_making.first_name }} {{ found.user.profile_making.last_name }}
+                    </div>
+
+                    <div>
+                        {{ found.user.profile_making.department }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <div class="warning-title">⚠️ Verify Ownership</div>
+                Be prepared to describe unique features or show proof.
+            </div>
+
+            <h3 class="section-title">📞 Contact Methods</h3>
+
+            <div class="contact-methods">
+
+                <!-- PHONE -->
+                 {% if found.user.profile_making.phone_number %}
+                <div class="contact-method">
+                    <div class="method-info">
+                        <div class="method-icon">📱</div>
+                        <div>
+                            <div class="method-label">Phone Number</div>
+                            <div class="method-value">{{ found.user.profile_making.phone_number }}</div>
+                        </div>
+                    </div>
+
+                    <a href="tel:{{ found.user.profile_making.phone_number }}" class="contact-btn">Call</a>
+                </div>
+                {% endif %}
+                <!-- EMAIL -->
+                <div class="contact-method">
+                    <div class="method-info">
+                        <div class="method-icon">📧</div>
+                        <div>
+                            <div class="method-label">Email</div>
+                            <div class="method-value">{{ found.user.email }}</div>
+                        </div>
+                    </div>
+
+                    <a href="mailto:{{ found.user.email }}?subject=Regarding Found Item - {{ found.item_name }}" class="contact-btn">
+                        Email
+                    </a>
+                </div>
+
+                <!-- MESSAGE -->
+                <div class="contact-method">
+                    <div class="method-info">
+                        <div class="method-icon">💬</div>
+                        <div>
+                            <div class="method-label">In-App Message</div>
+                            <div class="method-value">Send secure message</div>
+                        </div>
+                    </div>
+
+                    <a href="#message-section" class="contact-btn">Message</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- MESSAGE BOX -->
+        <div class="message-box" id="message-section">
+            <h2 class="section-title">✉️ Send a Message</h2>
+
+            <form method="POST">
+                {% csrf_token %}
+                <textarea id="message" name="owner_message" placeholder="Hi, I think the item you find is mine!!..."></textarea>
+                <button class="send-btn" type="submit">Notify Finder</button>
+            </form>
+
+            <div class="warning-box">
+                <div class="warning-title">🔒 Privacy Note</div>
+                Your contact information will be shared with the finder.
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

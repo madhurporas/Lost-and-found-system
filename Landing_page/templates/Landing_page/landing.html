@@ -1,0 +1,60 @@
+{% extends 'Landing_page/base.html' %}
+{% block t_css %}
+{% load static %}
+    <title>KhooyaPaayaa - Find What's Lost, Return What's Found</title>
+    <link rel="stylesheet" href="{% static 'Landing_page/landing.css' %}">
+{% endblock %}   
+{% block content %}
+        <div class="container">
+        <div class="header">
+            <div class="logo">🔍 KhooyaPaayaa</div>
+            <div class="tagline">Find What's Lost, Return What's Found</div>
+        </div>
+
+        <div class="content">
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">📱</div>
+                    <h3>Report Lost Items</h3>
+                    <p>Quickly report your lost belongings with detailed descriptions and photos</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✨</div>
+                    <h3>Post Found Items</h3>
+                    <p>Help others by posting items you've found and reconnect them with their owners</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">📞</div>
+                    <h3>Contact</h3>
+                    <p>Contact the finder of your lost item, Or Contact the owner of items you found </p>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <h2>Ready to Get Started?</h2>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="handleLogin()">Login</button>
+                    <button class="btn btn-secondary" onclick="handleRegister()">Register</button>
+                </div>
+            </div>
+
+            <div class="info-text">
+                Join our community of helpful people reuniting lost items with their owners.<br>
+                Already have an account? <a href="#" onclick="handleLogin(); return false;">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleLogin() {
+            alert('Redirecting to login page...');
+            window.location.href = "{% url 'Login' %}";
+        }
+
+        function handleRegister() {
+            alert('Redirecting to registration page...');
+            window.location.href = "{% url 'Register' %}";
+        }
+    </script>
+{% endblock %}

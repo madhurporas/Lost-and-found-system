@@ -1,0 +1,146 @@
+{% extends 'Landing_page/base.html' %}
+{% load static %}
+{% block t_css %}
+<title>Notifications - KhooyaPaayaa</title>
+<link rel="stylesheet" href="{% static 'notifications/notifications.css' %}">
+{% endblock %}
+
+{% block content %}
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo" onclick="location.href=`{% url 'Home' %}`">🔍 KhooyaPaayaa</div>
+        <div class="nav-menu">
+            <a href="{% url 'Home' %}" class="nav-link">Home</a>
+            <a href="{% url 'MyItems' %}" class="nav-link">My Items</a>
+            <a href="{% url 'ProfileInfo' %}" class="nav-link">Profile</a>
+            <a href="{% url 'LogOut' %}" class="nav-link">LogOut</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <h1 class="page-title">
+            🔔 Notifications
+            {% if unread_count > 0 %}
+            <span class="notification-badge">{{ unread_count }}</span>
+            {% endif %}
+        </h1>
+    </div>
+
+    <!-- FILTER TABS -->
+    <div class="filter-bar">
+        <a href="{% url 'notifications' %}?type=all"
+           class="filter-btn {% if active_filter == 'all' %}active{% endif %}">
+            All
+        </a>
+
+        <a href="{% url 'notifications' %}?type=match"
+           class="filter-btn {% if active_filter == 'match' %}active{% endif %}">
+            Matches
+        </a>
+
+        
+
+        <a href="{% url 'notifications' %}?type=update"
+           class="filter-btn {% if active_filter == 'update' %}active{% endif %}">
+            Updates
+        </a>
+
+        <a href="{% url 'notifications' %}?type=unread"
+           class="filter-btn {% if active_filter == 'unread' %}active{% endif %}">
+            Unread
+        </a>
+
+        <a href="{% url 'notifications_mark_all_read' %}" class="action-btn" style="margin-left:auto;">
+            Mark all as read
+        </a>
+    </div>
+
+    <!-- NOTIFICATIONS LIST -->
+    <div class="notifications-list">
+
+        {% if notifications %}
+            {% for n in notifications %}
+                <div class="notification-card {% if not n.is_read %}unread{% endif %}">
+                    
+                    <!-- Delete -->
+                    <a href="{% url 'notifications_delete' n.id %}" class="delete-btn">Delete</a>
+
+                    <!-- Icon -->
+                    <div class="notification-icon">
+                        {% if n.notif_type == 'match' %} 🎯
+                        {% elif n.notif_type == 'message' %} 💬
+                        {% elif n.notif_type == 'update' %} 📢
+                        {% elif n.notif_type == 'alert' %} ⚠️
+                        {% elif n.notif_type == 'success' %} ✅
+                        {% endif %}
+                    </div>
+
+                    <!-- Content -->
+                    <div class="notification-content">
+                        <div class="notification-title">
+                            {% if not n.is_read %}<span class="unread-badge"></span>{% endif %}
+                            {{ n.title }}
+                        </div>
+                        {% if n.finder %}
+                            <div class="finder-info-box">
+                                <b>Finder Details:</b>
+                                👤 {{ n.finder.profile_making.first_name }} {{ n.finder.profile_making.last_name }} <br>
+                                📞 {{ n.finder.profile_making.phone_number }} <br>
+                                📧 {{ n.finder.email }}
+                            </div>
+                        {% endif %}
+                        {% if n.message_from_finder %}
+                            <div class="finder-message-box">
+                                <b>Message from Finder:</b><br>
+                                {{ n.message_from_finder }}
+                            </div>
+                        {% endif %}
+                        {% if n.owner %}
+                        <div class="owner-info-box">
+                            <b>Owner Details:</b><br>
+                            👤 {{ n.owner.profile_making.first_name }} {{ n.owner.profile_making.last_name }} <br>
+                            📞 {{ n.owner.profile_making.phone_number }} <br>
+                            📧 {{ n.owner.email }} <br><br>
+
+                            {% if n.message_from_owner %}
+                            <div class="owner-message">
+                                <b>Owner's Message:</b><br>
+                                {{ n.message_from_owner }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+
+
+                        <div class="notification-message">{{ n.message }}</div>
+
+                        <div class="notification-footer">
+                            ⏱ {{ n.created_at|timesince }} ago
+                        </div>
+
+                        {% if not n.is_read %}
+                        <a href="{% url 'notifications_mark_read' n.id %}" class="mark-read-btn">
+                            Mark as Read
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">🔔</div>
+                <h3>No notifications</h3>
+                <p>You're all caught up!</p>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

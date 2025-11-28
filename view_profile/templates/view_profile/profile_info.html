@@ -1,0 +1,135 @@
+{% extends 'Landing_page/base.html' %}
+{% block t_css %}
+{% load static %}
+    <title>My Profile - KhooyaPaayaa</title>
+    <link rel="stylesheet" href="{% static 'view_profile/profile_info.css' %}">
+{% endblock %}   
+{% block content %}
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo" onclick="goHome()">🔍 KhooyaPaayaa</div>
+            <div class="nav-menu">
+                <a href="{% url 'Home' %}" class="nav-link">Home</a>
+                <a href="{% url 'MyItems' %}" class="nav-link">My Items</a>
+                <a href="{% url 'notifications' %}" class="nav-link">Notifications</a>
+                <a href="{% url 'LogOut' %}" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </nav>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div id="photo-preview" class="profile-photo-section">
+                {% if request.user.profile_making.profile_image %}
+                    <img id="current-profile-photo" src="{{ request.user.profile_making.profile_image.url }}" class="profile-photo" alt="Profile Photo">
+                {% else %}
+                    <div class="photo-placeholder">👤</div>
+                {% endif %}
+            </div>
+            
+            
+
+            <div class="profile-info">
+                <h1 class="profile-name">{{ request.user.profile_making.first_name }} {{ request.user.profile_making.last_name }}</h1>
+                <p class="profile-role">{{ request.user.profile_making.college_name }} • {{ request.user.profile_making.department }} Department</p>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ total_lost }}</span>
+                        <span class="stat-label">Items Lost</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ total_found }}</span>
+                        <span class="stat-label">Items Found</span>
+                    </div>
+                    
+                </div>
+
+                <div class="profile-actions">
+                    <button class="action-btn btn-primary" onclick="editProfile()">Edit Profile</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content-section">
+            <!-- Left Sidebar - Details -->
+            <div class="details-card">
+                <h1 class="section-title">📋<u> Profile Details</u></h1>
+
+                <div class="detail-item">
+                    <div class="detail-label"><h3>Email</h3></div>
+                    <div class="detail-value"><h3>{{ request.user.profile_making.email_address }}</h3></div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label"><h3>Phone</h3></div>
+                    <div class="detail-value"><h3>+91 {{ request.user.profile_making.phone_number }}</h3></div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label"><h3>College</h3></div>
+                    <div class="detail-value"><h3>{{ request.user.profile_making.college_name }}</h3></div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label"><h3>Enrollment Number</h3></div>
+                    <div class="detail-value"><h3>{{ request.user.profile_making.enrolment_id }}</h3></div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label"><h3>Department</h3></div>
+                    <div class="detail-value"><h3>{{ request.user.profile_making.department }}</h3></div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label"><h3>Year</h3></div>
+                    <div class="detail-value"><h3>{{ request.user.profile_making.year }}</h3></div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label"><h3>Campus Address</h3></div>
+                    <div class="detail-value"><h3>{{ request.user.profile_making.campus_address }}</h3></div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-label"><h3>About Me</h3></div>
+                    <div class="bio-text">
+                        <h3>{{ request.user.profile_making.bio }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Remove active class from all tabs and buttons
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Add active class to selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function editProfile() {
+            alert('Redirecting to profile edit page...');
+            window.location.href = "{% url 'Make_Profile' %}";
+        }
+        function viewItem(itemId) {
+            alert('Opening item details for item #' + itemId);
+            // In actual implementation: window.location.href = '/item/' + itemId;
+        }
+
+        function goHome() {
+            window.location.href = "{% url 'Home' %}";
+        }
+    </script>
+{% endblock %}

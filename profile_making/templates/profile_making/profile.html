@@ -1,0 +1,256 @@
+{% extends 'Landing_page/base.html' %}
+{% block t_css %}
+{% load static %}
+    <title>Complete Your Profile - KhooyaPaayaa</title>
+    <link rel="stylesheet" href="{% static 'profile_making/profile.css' %}">
+{% endblock %}
+{% block content %}
+{% block navbar %}{% endblock navbar %}
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="logo">🔍 KhooyaPaayaa</div>
+            <div class="subtitle">Complete Your Profile</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="profile-body">
+            <div class="welcome-text">
+                <h2>Let's Build Your Profile</h2>
+                <p>Help others identify you when returning lost items</p>
+            </div>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="photo-upload-section">
+                    <div class="photo-preview" id="photo-preview">
+                        {% if request.user.profile_making.profile_image %}
+                            <img src="{{ request.user.profile_making.profile_image.url }}">
+                        {% else %}
+                            <div class="photo-placeholder">👤</div>
+                        {% endif %}
+                    </div>
+                    <div class="upload-btn-wrapper">
+                        <button class="upload-btn">Upload Photo</button>
+                        <input type="file" id="profile-photo" name="profile_image" accept="image/*" onchange="handlePhotoUpload(event)">
+                    </div>
+                    <div class="photo-hint">JPG, PNG or GIF. Max size 5MB</div>
+                </div>
+        
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first-name">First Name <span class="required">*</span></label>
+                        <input type="text" id="first-name" name='first_name' value="{{ request.user.profile_making.first_name }}" placeholder="Enter first name" required>
+                        <div class="error-message" id="first-name-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last-name">Last Name <span class="required">*</span></label>
+                        <input type="text" id="last-name" name="last_name" value="{{ request.user.profile_making.last_name }}" placeholder="Enter last name" required>
+                        <div class="error-message" id="last-name-error"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="college">College/University Name <span class="required">*</span></label>
+                    <input type="text" id="college" name="college_name" value="{{ request.user.profile_making.college_name }}" placeholder="e.g., ABC University" required>
+                    <div class="error-message" id="college-error"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="enrollment">Enrollment Number <span class="required">*</span></label>
+                        <input type="text" id="enrollment" name="enrolment" value="{{ request.user.profile_making.enrolment_id }}" placeholder="e.g., 2024001234" required>
+                        <div class="error-message" id="enrollment-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="department">Department <span class="optional">(Optional)</span></label>
+                        <input type="text" id="department" name="department" value="{{ request.user.profile_making.department }}" placeholder="e.g., Computer Science">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="year">Year of Study <span class="optional">(Optional)</span></label>
+                        <select id="year" name="year">
+                            <option value="">Select Year</option>
+                            <option value="1">First Year</option>
+                            <option value="2">Second Year</option>
+                            <option value="3">Third Year</option>
+                            <option value="4">Fourth Year</option>
+                            <option value="5">Fifth Year</option>
+                            <option value="graduate">Graduate</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone_number" value="{{ request.user.profile_making.phone_number }}" placeholder="Enter phone number" required>
+                        <div class="error-message" id="phone-error"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Campus Address <span class="optional">(Optional)</span></label>
+                    <input type="text" id="address" name="campus_address" value="{{ request.user.profile_making.campus_address }}" placeholder="e.g., Hostel 3, Room 204">
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">About Me <span class="optional">(Optional)</span></label>
+                    <textarea id="bio" name="bio" placeholder="Tell others a bit about yourself...">{{ request.user.profile_making.bio }}</textarea>
+                </div>
+            
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="handleSaveDraft()">Save as Draft</button>
+                    <button type="submit" class="btn btn-primary" >Complete Profile</button>
+                </div>
+            </form>
+            <div class="skip-link">
+                <a href="{% url 'Home' %}" onclick="handleSkip(); return false;">I'll do this later</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedPhoto = null;
+
+        // Update progress bar based on filled fields
+        function updateProgress() {
+            const fields = ['first-name', 'last-name', 'college', 'enrollment', 'phone'];
+            const filled = fields.filter(id => document.getElementById(id).value.trim() !== '').length;
+            const progress = (filled / fields.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+        }
+
+        // Add event listeners to track progress
+        ['first-name', 'last-name', 'college', 'enrollment', 'phone'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateProgress);
+        });
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    return;
+                }
+
+                // Validate file type
+                if (!file.type.match('image.*')) {
+                    alert('Please upload an image file');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('photo-preview');
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Profile Photo">`;
+                    uploadedPhoto = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function validateForm() {
+            let isValid = true;
+
+            // Clear previous errors
+            document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
+            document.querySelectorAll('input').forEach(el => el.classList.remove('error'));
+
+            // Required fields
+            const firstName = document.getElementById('first-name').value.trim();
+            const lastName = document.getElementById('last-name').value.trim();
+            const college = document.getElementById('college').value.trim();
+            const enrollment = document.getElementById('enrollment').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+
+            if (firstName.length < 2) {
+                showError('first-name', 'Please enter a valid first name');
+                isValid = false;
+            }
+
+            if (lastName.length < 2) {
+                showError('last-name', 'Please enter a valid last name');
+                isValid = false;
+            }
+
+            if (college.length < 3) {
+                showError('college', 'Please enter your college/university name');
+                isValid = false;
+            }
+
+            if (enrollment.length < 3) {
+                showError('enrollment', 'Please enter a valid enrollment number');
+                isValid = false;
+            }
+
+            const phoneRegex = /^[0-9]{10,15}$/;
+            if (!phoneRegex.test(phone.replace(/[\s-]/g, ''))) {
+                showError('phone', 'Please enter a valid phone number');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function showError(fieldId, message) {
+            const input = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(fieldId + '-error');
+            input.classList.add('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function getFormData() {
+            return {
+                photo: uploadedPhoto,
+                firstName: document.getElementById('first-name').value.trim(),
+                lastName: document.getElementById('last-name').value.trim(),
+                college: document.getElementById('college').value.trim(),
+                enrollment: document.getElementById('enrollment').value.trim(),
+                department: document.getElementById('department').value.trim(),
+                year: document.getElementById('year').value,
+                phone: document.getElementById('phone').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                bio: document.getElementById('bio').value.trim()
+            };
+        }
+
+        function handleSubmit() {
+            if (!validateForm()) {
+                return;
+            }
+
+            const profileData = getFormData();
+            
+            console.log('Profile Data:', profileData);
+            alert('Profile completed successfully!\nWelcome to KhooyaPaayaa, ' + profileData.firstName + '!');
+            
+            // In your actual implementation:
+            // Send profile data to backend API
+            window.location.href = "{% url 'Home' %}";
+        }
+
+        function handleSaveDraft() {
+            const profileData = getFormData();
+            
+            console.log('Saving draft:', profileData);
+            alert('Profile saved as draft. You can complete it later.');
+            
+            // In your actual implementation:
+            // Save draft to backend
+            // window.location.href = '/dashboard';
+        }
+
+        function handleSkip() {
+            if (confirm('Are you sure you want to skip profile setup? You can always complete it later from settings.')) {
+                alert('Redirecting to dashboard...');
+                // window.location.href = '/dashboard';
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,112 @@
+/* HEADER */
+.kp-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 15px 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.kp-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.kp-logo {
+    font-size: 26px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+}
+
+.kp-nav a {
+    margin: 0 15px;
+    color: white;
+    font-size: 16px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.kp-nav a:hover {
+    text-decoration: underline;
+}
+
+/* USER DROPDOWN */
+.kp-user-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kp-login-btn,
+.kp-register-btn {
+    background: white;
+    color: #555;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.kp-register-btn {
+    background: #764ba2;
+    color: white;
+}
+
+.kp-user-btn {
+    background: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* DROPDOWN */
+.kp-dropdown-content {
+    display: none;
+    position: absolute;
+    background: white;
+    right: 0;
+    margin-top: 5px;
+    min-width: 170px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border-radius: 10px;
+}
+
+.kp-dropdown-content a {
+    display: block;
+    padding: 12px;
+    color: #333;
+    text-decoration: none;
+}
+
+.kp-dropdown-content a:hover {
+    background: #f0f0f0;
+}
+
+.kp-user-dropdown:hover .kp-dropdown-content {
+    display: block;
+}
+
+/* FOOTER */
+.kp-footer {
+    background: #222;
+    padding: 40px 0;
+    color: white;
+    margin-top: 50px;
+}
+
+.kp-footer-links a {
+    margin-right: 20px;
+    color: #ccc;
+    text-decoration: none;
+}
+
+.kp-footer-links a:hover {
+    color: white;
+}

@@ -1,0 +1,204 @@
+{% extends 'Landing_page/base.html' %}
+{% block t_css %}
+{% load static %}
+<title>My Items - KhooyaPaayaa</title>
+<link rel="stylesheet" href="{% static 'my_items/my_items.css' %}">
+{% endblock %}
+
+{% block content %}
+<nav class="navbar">
+    <div class="nav-container">
+        <a class="logo" href="{% url 'Home' %}">🔍 KhooyaPaayaa</a>
+        <div class="nav-menu">
+            <a class="nav-link" href="{% url 'Home' %}">Home</a>
+            
+            <a class="nav-link" href="{% url 'notifications' %}">Notifications</a>
+            <a class="nav-link" href="{% url 'ProfileInfo' %}">Profile</a>
+        </div>
+    </div>
+</nav>
+
+<main class="container">
+    <header class="page-header">
+        <div class="header-top">
+            <h1 class="page-title">📦 My Items</h1>
+
+            <div class="quick-actions">
+                <a class="action-btn btn-report-lost" href="{% url 'ReportLost' %}">😢 Report Lost</a>
+                <a class="action-btn btn-report-found" href="{% url 'ReportFound' %}">✨ Report Found</a>
+            </div>
+        </div>
+        <p class="page-subtitle">Manage all your lost and found items</p>
+    </header>
+
+    <!-- Stats -->
+    <section class="stats-section">
+        <div class="stat-card lost"><div class="stat-icon">😢</div><div class="stat-number">{{ total_lost }}</div><div class="stat-label">Items Lost</div></div>
+        <div class="stat-card found"><div class="stat-icon">✨</div><div class="stat-number">{{ total_found }}</div><div class="stat-label">Items Found</div></div>
+    </section>
+
+    <!-- Filters -->
+    <section class="filter-section">
+        <div class="filter-tabs">
+            <button class="filter-btn active" data-filter="all">All Items</button>
+            <button class="filter-btn" data-filter="lost">Lost Items</button>
+            <button class="filter-btn" data-filter="found">Found Items</button>
+        </div>
+
+        
+
+            <select id="category-select" class="filter-select">
+                <option value="">All Categories</option>
+                <option value="electronics">Electronics</option>
+                <option value="documents">Documents</option>
+                <option value="accessories">Accessories</option>
+                <option value="bags">Bags</option>
+                <option value="books">Books</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+    </section>
+
+    <!-- Lost Items -->
+    <section id="lost-section" class="items-section">
+        <div class="section-header"><h2>😢 My Lost Items</h2></div>
+
+        <div id="lost-grid" class="items-grid">
+            {% for item in lost_items %}
+            <article class="item-card"
+                data-type="lost"
+                data-category="{{ item.category }}"
+                data-date="{{ item.date_lost|date:'Y-m-d' }}"
+            >
+
+                <div class="item-image">
+                    {% if item.photo %}
+                        <img src="{{ item.photo.url }}" class="item-photo">
+                    {% else %}
+                        <div class="no-photo">📦</div>
+                    {% endif %}
+
+                    <span class="item-status status-{{ item.status }}">
+                        {{ item.status|upper }}
+                    </span>
+                </div>
+
+                <div class="item-content">
+                    <h3 class="item-title">{{ item.item_name }}</h3>
+                    <p class="item-description">{{ item.description }}</p>
+
+                    <div class="item-meta">
+                        <span class="item-location">📍 {{ item.location }}</span>
+                        <span class="item-date">📅 {{ item.date_lost|date:"M d" }}</span>
+                    </div>
+                </div>
+
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Found Items -->
+    <section id="found-section" class="items-section">
+        <div class="section-header"><h2>✨ Items I Found</h2></div>
+
+        <div id="found-grid" class="items-grid">
+            {% for item in found_items %}
+            <article class="item-card"
+                data-type="found"
+                data-category="{{ item.category }}"
+                data-date="{{ item.date_found|date:'Y-m-d' }}"
+            >
+
+                <div class="item-image">
+                    {% if item.photo %}
+                        <img src="{{ item.photo.url }}" class="item-photo">
+                    {% else %}
+                        <div class="no-photo">📦</div>
+                    {% endif %}
+
+                    <span class="item-status status-{{ item.status }}">
+                        {{ item.status|upper }}
+                    </span>
+                </div>
+
+                <div class="item-content">
+                    <h3 class="item-title">{{ item.item_name }}</h3>
+                    <p class="item-description">{{ item.description }}</p>
+
+                    <div class="item-meta">
+                        <span class="item-location">📍 {{ item.location }}</span>
+                        <span class="item-date">📅 {{ item.date_found|date:"M d" }}</span>
+                    </div>
+                </div>
+
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+
+<script>
+(function () {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const sortSelect = document.getElementById('sort-select');
+    const categorySelect = document.getElementById('category-select');
+
+    const grids = {
+        lost: document.getElementById('lost-grid'),
+        found: document.getElementById('found-grid')
+    };
+
+    function applyFilters(filter = 'all', category = '') {
+        Object.values(grids).forEach(grid => {
+            Array.from(grid.children).forEach(card => {
+                const type = card.dataset.type;
+                const cat = card.dataset.category;
+
+                const showType = filter === 'all' || filter === type;
+                const showCat = !category || category === cat;
+
+                card.style.display = (showType && showCat) ? 'block' : 'none';
+            });
+        });
+    }
+
+    function sortGrid(grid, mode) {
+        const cards = Array.from(grid.children);
+        const sorted = cards.sort((a, b) => {
+            const da = a.dataset.date || '';
+            const db = b.dataset.date || '';
+            return mode === 'recent'
+                ? db.localeCompare(da)
+                : da.localeCompare(db);
+        });
+        sorted.forEach(node => grid.appendChild(node));
+    }
+
+    document.querySelector('.filter-tabs').addEventListener('click', e => {
+        const btn = e.target.closest('.filter-btn');
+        if (!btn) return;
+
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        applyFilters(btn.dataset.filter, categorySelect.value);
+    });
+
+    categorySelect.addEventListener('change', () => {
+        const active = document.querySelector('.filter-btn.active').dataset.filter;
+        applyFilters(active, categorySelect.value);
+    });
+
+    sortSelect.addEventListener('change', () => {
+        Object.values(grids).forEach(grid => sortGrid(grid, sortSelect.value));
+    });
+
+    applyFilters('all', '');
+    sortGrid(grids.lost, 'recent');
+    sortGrid(grids.found, 'recent');
+
+})();
+</script>
+
+{% endblock %}

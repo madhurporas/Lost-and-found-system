@@ -1,0 +1,254 @@
+{% extends 'Landing_page/base.html' %}
+{% block t_css %}
+{% load static %}
+    <title>Report Lost Item - KhooyaPaayaa</title>
+    <link rel="stylesheet" href="{% static 'report_lost/report_lost.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo" onclick="window.location.href='{% url 'Home' %}'">🔍 KhooyaPaayaa</div>
+
+        <div class="nav-menu">
+            <a href="{% url 'Home' %}" class="nav-link">Home</a>
+            <a href="#" class="nav-link">My Items</a>
+            <a href="#" class="nav-link">Notifications</a>
+            <a href="#" class="nav-link">Profile</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="page-header">
+        <div class="page-icon">😢</div>
+        <h1 class="page-title">Report Lost Item</h1>
+        <p class="page-subtitle">Help us help you find your lost item</p>
+    </div>
+
+    <!-- PROGRESS STEPS -->
+    <div class="progress-steps">
+        <div class="progress-line" id="progress-line"></div>
+        <div class="step active" id="indicator-1"><div class="step-number">1</div><div class="step-label">Basic</div></div>
+        <div class="step" id="indicator-2"><div class="step-number">2</div><div class="step-label">Details</div></div>
+        <div class="step" id="indicator-3"><div class="step-number">3</div><div class="step-label">Location</div></div>
+        <div class="step" id="indicator-4"><div class="step-number">4</div><div class="step-label">Review</div></div>
+    </div>
+
+
+<form id="lost-form" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- STEP 1 -->
+    <div class="form-step active" id="step-1">
+        <h2 class="step-title">Basic Information</h2>
+
+        <div class="form-group">
+            <label>Item Name *</label>
+            <input type="text" name="item_name" required placeholder="e.g., Wallet, iPhone">
+        </div>
+
+        <!-- CATEGORY → RADIO BUTTON SYSTEM -->
+        <div class="form-group">
+            <label>Category *</label>
+
+            <div class="category-grid">
+
+                <label class="category-card">
+                    <input type="radio" name="category" value="electronics" required>
+                    <div class="category-icon">📱</div>
+                    <div class="category-name">Electronics</div>
+                </label>
+
+                <label class="category-card">
+                    <input type="radio" name="category" value="documents">
+                    <div class="category-icon">📄</div>
+                    <div class="category-name">Documents</div>
+                </label>
+
+                <label class="category-card">
+                    <input type="radio" name="category" value="accessories">
+                    <div class="category-icon">👜</div>
+                    <div class="category-name">Accessories</div>
+                </label>
+
+                <label class="category-card">
+                    <input type="radio" name="category" value="bags">
+                    <div class="category-icon">🎒</div>
+                    <div class="category-name">Bags</div>
+                </label>
+
+                <label class="category-card">
+                    <input type="radio" name="category" value="books">
+                    <div class="category-icon">📚</div>
+                    <div class="category-name">Books</div>
+                </label>
+
+                <label class="category-card">
+                    <input type="radio" name="category" value="keys">
+                    <div class="category-icon">🔑</div>
+                    <div class="category-name">Keys</div>
+                </label>
+
+                <label class="category-card">
+                    <input type="radio" name="category" value="clothing">
+                    <div class="category-icon">👕</div>
+                    <div class="category-name">Clothing</div>
+                </label>
+
+                <label class="category-card">
+                    <input type="radio" name="category" value="other">
+                    <div class="category-icon">📦</div>
+                    <div class="category-name">Other</div>
+                </label>
+
+            </div>
+        </div>
+
+        <div class="form-navigation">
+            <button type="button" class="nav-btn btn-back" onclick="window.location.href='{% url 'Home' %}'">Cancel</button>
+            <button type="button" class="nav-btn btn-next" onclick="nextStep()">Next</button>
+        </div>
+    </div>
+
+
+
+    <!-- STEP 2 -->
+    <div class="form-step" id="step-2">
+        <h2 class="step-title">Item Details</h2>
+
+        <div class="form-group">
+            <label>Description *</label>
+            <textarea name="description" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Color *</label>
+            <input type="text" name="color" required>
+        </div>
+
+        <div class="form-group">
+            <label>Upload Photo (optional)</label>
+            <input type="file" id="photo" name="photo" accept="image/*" onchange="previewPhoto(event)">
+            <img id="photo-preview" class="photo-preview">
+        </div>
+
+        <div class="form-navigation">
+            <button type="button" class="nav-btn btn-back" onclick="prevStep()">Back</button>
+            <button type="button" class="nav-btn btn-next" onclick="nextStep()">Next</button>
+        </div>
+    </div>
+
+
+    <!-- STEP 3 -->
+    <div class="form-step" id="step-3">
+        <h2 class="step-title">Location</h2>
+
+        <div class="form-group">
+            <label>Where was it lost? *</label>
+            <select name="location" required>
+                <option value="">Select</option>
+                <option value="library">Library</option>
+                <option value="cafeteria">Cafeteria</option>
+                <option value="classroom">Classroom</option>
+                <option value="hostel">Hostel</option>
+                <option value="parking">Parking</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Date Lost *</label>
+            <input type="date" name="date_lost" required max="{{ today }}">
+        </div>
+
+        <div class="form-group">
+            <label>Contact Number *</label>
+            <input type="tel" name="contact_number" required>
+        </div>
+
+        <div class="form-navigation">
+            <button type="button" class="nav-btn btn-back" onclick="prevStep()">Back</button>
+            <button type="button" class="nav-btn btn-next" onclick="nextStep()">Next</button>
+        </div>
+    </div>
+
+
+    <!-- STEP 4 -->
+    <div class="form-step" id="step-4">
+        <h2 class="step-title">Review</h2>
+
+        <p class="step-description">Everything correct?</p>
+
+        <div class="summary-section">
+            <b>Item Name:</b> <span id="sum-name"></span><br>
+            <b>Category:</b> <span id="sum-category"></span><br>
+            <b>Color:</b> <span id="sum-color"></span><br>
+            <b>Description:</b> <span id="sum-description"></span><br>
+            <b>Location:</b> <span id="sum-location"></span><br>
+            <b>Date Lost:</b> <span id="sum-date"></span><br>
+            <b>Contact Number:</b> <span id="sum-contact"></span><br>
+        </div>
+
+        <div class="form-navigation">
+            <button type="button" class="nav-btn btn-back" onclick="prevStep()">Back</button>
+            <button type="submit" class="nav-btn btn-next">Submit Report</button>
+        </div>
+    </div>
+
+</form>
+
+</div>
+
+
+
+<!-- ⭐ MINIMAL JAVASCRIPT (ONLY 20 LINES!) -->
+<script>
+let step = 1;
+
+// Show correct step
+function showStep() {
+    document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+    document.getElementById(`step-${step}`).classList.add('active');
+
+    document.getElementById('progress-line').style.width = ((step - 1) * 33) + "%";
+}
+
+// Next step
+function nextStep() {
+    if (!document.querySelector(`#step-${step} :invalid`)) {
+        step++;
+        if (step === 4) fillSummary();
+        showStep();
+    }
+}
+
+// Previous step
+function prevStep() {
+    step--;
+    showStep();
+}
+
+// Summary auto-fill
+function fillSummary() {
+    const f = document.getElementById('lost-form');
+    document.getElementById('sum-name').innerText = f.item_name.value;
+    document.getElementById('sum-category').innerText = f.category.value;
+    document.getElementById('sum-color').innerText = f.color.value;
+    document.getElementById('sum-description').innerText = f.description.value;
+    document.getElementById('sum-location').innerText = f.location.value;
+    document.getElementById('sum-date').innerText = f.date_lost.value;
+    document.getElementById('sum-contact').innerText = f.contact_number.value;
+}
+
+// Photo preview
+function previewPhoto(e){
+    const img = document.getElementById('photo-preview');
+    img.src = URL.createObjectURL(e.target.files[0]);
+    img.style.display = "block";
+}
+</script>
+
+{% endblock %}

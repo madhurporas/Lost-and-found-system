@@ -1,0 +1,266 @@
+{% extends 'Landing_page/base.html' %}
+{% block t_css %}
+{% load static %}
+    <title>Report Found Item - KhooyaPaayaa</title>
+    <link rel="stylesheet" href="{% static 'report_found/report_found.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="logo" onclick="window.location.href=`{% url 'Home' %}`">🔍 KhooyaPaayaa</div>
+
+        <div class="nav-menu">
+            <a href="{% url 'Home' %}" class="nav-link">Home</a>
+            <a href="{% url 'MyItems' %}" class="nav-link">My Items</a>
+            <a href="{% url 'notifications' %}" class="nav-link">Notifications</a>
+            <a href="{% url 'ProfileInfo' %}" class="nav-link">Profile</a>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN CONTAINER -->
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <div class="page-icon">✨</div>
+        <h1 class="page-title">Report Found Item</h1>
+        <p class="page-subtitle">Help reunite someone with their lost item</p>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-steps">
+        <div class="progress-line" id="progress-line"></div>
+
+        <div class="step active" id="step-indicator-1">
+            <div class="step-number">1</div><div class="step-label">Basic Info</div>
+        </div>
+
+        <div class="step" id="step-indicator-2">
+            <div class="step-number">2</div><div class="step-label">Details</div>
+        </div>
+
+        <div class="step" id="step-indicator-3">
+            <div class="step-number">3</div><div class="step-label">Location</div>
+        </div>
+
+        <div class="step" id="step-indicator-4">
+            <div class="step-number">4</div><div class="step-label">Review</div>
+        </div>
+    </div>
+
+
+    <!-- FORM -->
+    <form id="found-form" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- STEP 1 -->
+        <div class="form-step active" id="step-1">
+            <h2 class="step-title">What Did You Find?</h2>
+
+            <div class="info-box">
+                <div class="info-box-title">🌟 Thank you!</div>
+                <div class="info-box-text">Your kindness helps reunite people with belongings.</div>
+            </div>
+
+            <div class="form-group">
+                <label>Item Name *</label>
+                <input type="text" name="item_name" required placeholder="e.g., Wallet, iPhone">
+            </div>
+
+            <!-- NO JS CATEGORY SELECTION -->
+            <div class="form-group">
+                <label>Category *</label>
+                <div class="category-grid">
+
+                    <label class="category-card">
+                        <input type="radio" name="category" value="electronics" required>
+                        <div class="category-icon">📱</div><div class="category-name">Electronics</div>
+                    </label>
+
+                    <label class="category-card">
+                        <input type="radio" name="category" value="documents">
+                        <div class="category-icon">📄</div><div class="category-name">Documents</div>
+                    </label>
+
+                    <label class="category-card">
+                        <input type="radio" name="category" value="accessories">
+                        <div class="category-icon">👜</div><div class="category-name">Accessories</div>
+                    </label>
+
+                    <label class="category-card">
+                        <input type="radio" name="category" value="bags">
+                        <div class="category-icon">🎒</div><div class="category-name">Bags</div>
+                    </label>
+
+                    <label class="category-card">
+                        <input type="radio" name="category" value="books">
+                        <div class="category-icon">📚</div><div class="category-name">Books</div>
+                    </label>
+
+                    <label class="category-card">
+                        <input type="radio" name="category" value="keys">
+                        <div class="category-icon">🔑</div><div class="category-name">Keys</div>
+                    </label>
+
+                    <label class="category-card">
+                        <input type="radio" name="category" value="clothing">
+                        <div class="category-icon">👕</div><div class="category-name">Clothing</div>
+                    </label>
+
+                    <label class="category-card">
+                        <input type="radio" name="category" value="other">
+                        <div class="category-icon">📦</div><div class="category-name">Other</div>
+                    </label>
+
+                </div>
+            </div>
+
+            <div class="form-navigation">
+                <button type="button" class="nav-btn btn-next" onclick="nextStep()">Next</button>
+
+            </div>
+        </div>
+
+
+        <!-- STEP 2 -->
+        <div class="form-step" id="step-2">
+            <h2 class="step-title">Item Details</h2>
+
+            <!-- Photo Upload -->
+            <div class="form-group">
+                <label>Upload Photo *</label>
+                <input type="file" name="photo" id="photo" accept="image/*" required onchange="previewPhoto(event)">
+                <img id="photo-preview" style="display:none; margin-top:10px; width:200px;">
+            </div>
+
+            <div class="form-group">
+                <label>Description *</label>
+                <textarea name="description" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Color *</label>
+                <input type="text" name="color" required>
+            </div>
+
+            <!-- NO-JS CONDITION -->
+            <div class="form-group">
+                <label>Condition *</label>
+                <div class="condition-options">
+
+                    <label class="condition-card">
+                        <input type="radio" name="condition" value="excellent" required>
+                        ✨<div>Excellent</div>
+                    </label>
+
+                    <label class="condition-card">
+                        <input type="radio" name="condition" value="good">
+                        👍<div>Good</div>
+                    </label>
+
+                    <label class="condition-card">
+                        <input type="radio" name="condition" value="damaged">
+                        🔧<div>Damaged</div>
+                    </label>
+
+                </div>
+            </div>
+
+            <div class="form-navigation">
+                <button type="button" class="nav-btn btn-back" onclick="previousStep()">Back</button>
+                <button type="button" class="nav-btn btn-next" onclick="nextStep()">Next</button>
+
+            </div>
+        </div>
+
+
+        <!-- STEP 3 -->
+        <div class="form-step" id="step-3">
+            <h2 class="step-title">Where & When?</h2>
+
+            <div class="form-group">
+                <label>Location Found *</label>
+                <select name="location" required>
+                    <option value="">Select</option>
+                    <option value="library">Library</option>
+                    <option value="cafeteria">Cafeteria</option>
+                    <option value="classroom">Classroom</option>
+                    <option value="hostel">Hostel</option>
+                    <option value="sports">Sports Complex</option>
+                    <option value="parking">Parking Area</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Date Found *</label>
+                <input type="date" name="date_found" required max="{{ today }}">
+            </div>
+
+            <div class="form-group">
+                <label>Contact Number *</label>
+                <input type="tel" name="contact_number" required>
+            </div>
+
+            <div class="form-navigation">
+                <button type="button" class="nav-btn btn-back" onclick="previousStep()">Back</button>
+                <button type="button" class="nav-btn btn-next" onclick="nextStep()">Next</button>
+
+            </div>
+        </div>
+
+
+        <!-- STEP 4 -->
+        <div class="form-step" id="step-4">
+            <h2 class="step-title">Review & Submit</h2>
+
+            <p>Everything correct? Submit to help the owner.</p>
+
+            <div class="form-navigation">
+                <button type="button" class="nav-btn btn-back" onclick="previousStep()">Back</button>
+                <button type="submit" class="nav-btn btn-next">Submit Report</button>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- MINIMAL JAVASCRIPT -->
+<script>
+let step = 1;
+
+// Wizard Next Step
+function nextStep() {
+    document.getElementById(`step-${step}`).classList.remove('active');
+    document.getElementById(`step-indicator-${step}`).classList.remove('active');
+    step++;
+    document.getElementById(`step-${step}`).classList.add('active');
+    document.getElementById(`step-indicator-${step}`).classList.add('active');
+    document.getElementById('progress-line').style.width = ((step - 1) * 33) + "%";
+}
+
+// Wizard Back
+function previousStep() {
+    document.getElementById(`step-${step}`).classList.remove('active');
+    document.getElementById(`step-indicator-${step}`).classList.remove('active');
+    step--;
+    document.getElementById(`step-${step}`).classList.add('active');
+    document.getElementById(`step-indicator-${step}`).classList.add('active');
+    document.getElementById('progress-line').style.width = ((step - 1) * 33) + "%";
+}
+
+// Photo Preview
+function previewPhoto(e){
+    const img = document.getElementById('photo-preview');
+    img.src = URL.createObjectURL(e.target.files[0]);
+    img.style.display = "block";
+}
+</script>
+
+{% endblock %}
