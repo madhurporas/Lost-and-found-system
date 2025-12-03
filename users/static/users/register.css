@@ -40,6 +40,14 @@ body {
         transform: translateY(0);
     }
 }
+/* 📱 phones + small screens */
+@media (max-width: 850px) {
+    .register-container {
+        width: 100%;
+        max-width: 95%;   /* shrink only on mobile */
+        margin: 15px auto;
+    }
+}
 
 .register-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
