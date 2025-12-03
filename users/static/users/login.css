@@ -18,11 +18,20 @@
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 800px;
-            width: 800px;
+            width: 800px;          /* EXACT laptop width (unchanged) */
+            max-width: 800px;      /* ensures laptop view stays same */
             overflow: hidden;
             animation: slideUp 0.6s ease-out;
             margin: 0 auto;
+        }
+
+        /* ---------- Responsiveness only for screens smaller than laptop ---------- */
+        @media (max-width: 850px) {
+            .login-container {
+                width: 100%;
+                max-width: 95%;     /* Shrink only on mobile/tablet */
+                margin: 15px auto;
+            }
         }
 
         @keyframes slideUp {
