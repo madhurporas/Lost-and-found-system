@@ -3,6 +3,11 @@
             padding: 0;
             box-sizing: border-box;
         }
+        /* Remove horizontal scroll everywhere */
+        html, body {
+            overflow-x: hidden !important;
+            width: 100%;
+        }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
